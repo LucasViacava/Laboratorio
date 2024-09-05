@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Agregar el contexto de la base de datos
 builder.Services.AddDbContext<RestauranteContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("LaboratorioDb")));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

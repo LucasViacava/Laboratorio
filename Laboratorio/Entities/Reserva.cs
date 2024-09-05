@@ -3,6 +3,7 @@
     public class Reserva
     {
         public int Id { get; set; }
+        public string? NombreCliente { get; set; }
         public int? MesaId { get; set; }
         public DateTimeOffset FechaReserva { get; set; }
         public DateTimeOffset FechaCreacion { get; set; }
