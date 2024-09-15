@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Laboratorio.Entities;
 using Laboratorio.Data;
+using AutoMapper;
+using Laboratorio.DTOs;
 namespace Laboratorio.Controllers
 {
     [Route("api/[controller]")]
@@ -9,10 +11,12 @@ namespace Laboratorio.Controllers
     public class EmpleadoController : ControllerBase
     {
         private readonly RestauranteContext _context;
+        private readonly IMapper _mapper;
 
-        public EmpleadoController(RestauranteContext context)
+        public EmpleadoController(RestauranteContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;        
         }
 
         [HttpGet]
@@ -35,8 +39,18 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Empleado>> PostEmpleado(Empleado empleado)
+        public async Task<ActionResult<Empleado>> PostEmpleado(EmpleadoDTO empleadoDTO)
         {
+            var empleado = new Empleado
+            {
+                Nombre = empleadoDTO.Nombre,
+                Ubicacion = empleadoDTO.Ubicacion,
+                FechaContratacion = empleadoDTO.FechaContratacion,
+                Salario = empleadoDTO.Salario,
+                Categoria = empleadoDTO.Categoria,
+                RolId = empleadoDTO.RolId
+            };
+
             _context.Empleados.Add(empleado);
             await _context.SaveChangesAsync();
 
@@ -44,12 +58,20 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmpleado(int id, Empleado empleado)
+        public async Task<IActionResult> PutEmpleado(int id, EmpleadoDTO empleadoDTO)
         {
-            if (id != empleado.Id)
+            var empleado = await _context.Empleados.FindAsync(id);
+            if (empleado == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+
+            empleado.Nombre = empleadoDTO.Nombre;
+            empleado.Ubicacion = empleadoDTO.Ubicacion;
+            empleado.FechaContratacion = empleadoDTO.FechaContratacion;
+            empleado.Salario = empleadoDTO.Salario;
+            empleado.Categoria = empleadoDTO.Categoria;
+            empleado.RolId = empleadoDTO.RolId;
 
             _context.Entry(empleado).State = EntityState.Modified;
 

@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Laboratorio.Entities;
 using Laboratorio.Data;
+using AutoMapper;
+using Laboratorio.DTOs;
 namespace Laboratorio.Controllers
 {
     [Route("api/[controller]")]
@@ -10,9 +12,12 @@ namespace Laboratorio.Controllers
     {
         private readonly RestauranteContext _context;
 
-        public OrdenItemController(RestauranteContext context)
+        private readonly IMapper _mapper;
+
+        public OrdenItemController(RestauranteContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -35,8 +40,16 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<OrdenItem>> PostOrdenItem(OrdenItem ordenItem)
+        public async Task<ActionResult<OrdenItem>> PostOrdenItem(OrdenItemDTO ordenItemDTO)
         {
+            var ordenItem = new OrdenItem
+            {
+                OrdenId = ordenItemDTO.OrdenId,
+                MenuItemId = ordenItemDTO.MenuItemId,
+                Cantidad = ordenItemDTO.Cantidad,
+                Precio = ordenItemDTO.Precio
+            };
+
             _context.OrdenItems.Add(ordenItem);
             await _context.SaveChangesAsync();
 
@@ -44,12 +57,18 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrdenItem(int id, OrdenItem ordenItem)
+        public async Task<IActionResult> PutOrdenItem(int id, OrdenItemDTO ordenItemDTO)
         {
-            if (id != ordenItem.Id)
+            var ordenItem = await _context.OrdenItems.FindAsync(id);
+            if (ordenItem == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+
+            ordenItem.OrdenId = ordenItemDTO.OrdenId;
+            ordenItem.MenuItemId = ordenItemDTO.MenuItemId;
+            ordenItem.Cantidad = ordenItemDTO.Cantidad;
+            ordenItem.Precio = ordenItemDTO.Precio;
 
             _context.Entry(ordenItem).State = EntityState.Modified;
 

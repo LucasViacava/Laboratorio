@@ -2,16 +2,20 @@
 using Microsoft.EntityFrameworkCore;
 using Laboratorio.Entities;
 using Laboratorio.Data;
+using AutoMapper;
+using Laboratorio.DTOs;
 
 [Route("api/[controller]")]
 [ApiController]
 public class ComandaController : ControllerBase
 {
     private readonly RestauranteContext _context;
+    private readonly IMapper _mapper;
 
-    public ComandaController(RestauranteContext context)
+    public ComandaController(RestauranteContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     [HttpGet]
@@ -34,8 +38,15 @@ public class ComandaController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Comanda>> PostComanda(Comanda comanda)
+    public async Task<ActionResult<Comanda>> PostComanda(ComandaDTO comandaDTO)
     {
+        var comanda = new Comanda
+        {
+            PedidoId = comandaDTO.PedidoId,
+            MenuItemId = comandaDTO.MenuItemId,
+            Cantidad = comandaDTO.Cantidad
+        };
+
         _context.Comandas.Add(comanda);
         await _context.SaveChangesAsync();
 
@@ -43,12 +54,17 @@ public class ComandaController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutComanda(int id, Comanda comanda)
+    public async Task<IActionResult> PutComanda(int id, ComandaDTO comandaDTO)
     {
-        if (id != comanda.Id)
+        var comanda = await _context.Comandas.FindAsync(id);
+        if (comanda == null)
         {
-            return BadRequest();
+            return NotFound();
         }
+
+        comanda.PedidoId = comandaDTO.PedidoId;
+        comanda.MenuItemId = comandaDTO.MenuItemId;
+        comanda.Cantidad = comandaDTO.Cantidad;
 
         _context.Entry(comanda).State = EntityState.Modified;
 

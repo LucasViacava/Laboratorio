@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Laboratorio.Entities;
 using Laboratorio.Data;
+using AutoMapper;
+using Laboratorio.DTOs;
 namespace Laboratorio.Controllers
 {
     [Route("api/[controller]")]
@@ -10,9 +12,12 @@ namespace Laboratorio.Controllers
     {
         private readonly RestauranteContext _context;
 
-        public MesaController(RestauranteContext context)
+        private readonly IMapper _mapper;
+
+        public MesaController(RestauranteContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -35,8 +40,15 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Mesa>> PostMesa(Mesa mesa)
+        public async Task<ActionResult<Mesa>> PostMesa(MesaDTO mesaDTO)
         {
+            var mesa = new Mesa
+            {
+                Numero = mesaDTO.Numero,
+                Capacidad = mesaDTO.Capacidad,
+                Ubicacion = mesaDTO.Ubicacion
+            };
+
             _context.Mesas.Add(mesa);
             await _context.SaveChangesAsync();
 
@@ -44,12 +56,17 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMesa(int id, Mesa mesa)
+        public async Task<IActionResult> PutMesa(int id, MesaDTO mesaDTO)
         {
-            if (id != mesa.Id)
+            var mesa = await _context.Mesas.FindAsync(id);
+            if (mesa == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+
+            mesa.Numero = mesaDTO.Numero;
+            mesa.Capacidad = mesaDTO.Capacidad;
+            mesa.Ubicacion = mesaDTO.Ubicacion;
 
             _context.Entry(mesa).State = EntityState.Modified;
 

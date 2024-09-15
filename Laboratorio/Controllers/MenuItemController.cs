@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Laboratorio.Entities;
 using Laboratorio.Data;
+using AutoMapper;
+using Laboratorio.DTOs;
 namespace Laboratorio.Controllers
 {
     [Route("api/[controller]")]
@@ -10,9 +12,12 @@ namespace Laboratorio.Controllers
     {
         private readonly RestauranteContext _context;
 
-        public MenuItemController(RestauranteContext context)
+        private readonly IMapper _mapper;
+
+        public MenuItemController(RestauranteContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -35,8 +40,16 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<MenuItem>> PostMenuItem(MenuItem menuItem)
+        public async Task<ActionResult<MenuItem>> PostMenuItem(MenuItemDTO menuItemDTO)
         {
+            var menuItem = new MenuItem
+            {
+                Nombre = menuItemDTO.Nombre,
+                Descripcion = menuItemDTO.Descripcion,
+                Precio = menuItemDTO.Precio,
+                Categoria = menuItemDTO.Categoria
+            };
+
             _context.MenuItems.Add(menuItem);
             await _context.SaveChangesAsync();
 
@@ -44,12 +57,18 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMenuItem(int id, MenuItem menuItem)
+        public async Task<IActionResult> PutMenuItem(int id, MenuItemDTO menuItemDTO)
         {
-            if (id != menuItem.Id)
+            var menuItem = await _context.MenuItems.FindAsync(id);
+            if (menuItem == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+
+            menuItem.Nombre = menuItemDTO.Nombre;
+            menuItem.Descripcion = menuItemDTO.Descripcion;
+            menuItem.Precio = menuItemDTO.Precio;
+            menuItem.Categoria = menuItemDTO.Categoria;
 
             _context.Entry(menuItem).State = EntityState.Modified;
 

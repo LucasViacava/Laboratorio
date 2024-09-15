@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Laboratorio.Entities;
 using Laboratorio.Data;
+using AutoMapper;
+using Laboratorio.DTOs;
 namespace Laboratorio.Controllers
 {
     [Route("api/[controller]")]
@@ -10,9 +12,12 @@ namespace Laboratorio.Controllers
     {
         private readonly RestauranteContext _context;
 
-        public RolController(RestauranteContext context)
+        private readonly IMapper _mapper;
+
+        public RolController(RestauranteContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -35,8 +40,12 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Rol>> PostRol(Rol rol)
+        public async Task<ActionResult<Rol>> PostRol([FromBody] RolDTO rolDTO)
         {
+            var rol = new Rol
+            {
+                Descripcion = rolDTO.Descripcion
+            };
             _context.Roles.Add(rol);
             await _context.SaveChangesAsync();
 
@@ -44,12 +53,14 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutRol(int id, Rol rol)
+        public async Task<IActionResult> PutRol(int id, RolDTO rolDTO)
         {
-            if (id != rol.Id)
+            var rol = await _context.Roles.FindAsync(id);
+            if (rol == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+            rol.Descripcion = rolDTO.Descripcion;
 
             _context.Entry(rol).State = EntityState.Modified;
 

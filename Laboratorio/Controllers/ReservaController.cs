@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Laboratorio.Entities;
 using Laboratorio.Data;
+using AutoMapper;
+using Laboratorio.DTOs;
 
 namespace Laboratorio.Controllers
 {
@@ -11,9 +13,12 @@ namespace Laboratorio.Controllers
     {
         private readonly RestauranteContext _context;
 
-        public ReservaController(RestauranteContext context)
+        private readonly IMapper _mapper;
+
+        public ReservaController(RestauranteContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -36,8 +41,14 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Reserva>> PostReserva(Reserva reserva)
+        public async Task<ActionResult<Reserva>> PostReserva(ReservaDTO reservaDTO)
         {
+            var reserva = new Reserva
+            {
+                NombreCliente = reservaDTO.NombreCliente,
+                MesaId = reservaDTO.MesaId,
+                FechaReserva = reservaDTO.FechaReserva
+            };
             _context.Reservas.Add(reserva);
             await _context.SaveChangesAsync();
 
@@ -45,12 +56,17 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutReserva(int id, Reserva reserva)
+        public async Task<IActionResult> PutReserva(int id, ReservaDTO reservaDTO)
         {
-            if (id != reserva.Id)
+            var reserva = await _context.Reservas.FindAsync(id);
+            if (reserva == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+
+            reserva.NombreCliente = reservaDTO.NombreCliente;
+            reserva.MesaId = reservaDTO.MesaId;
+            reserva.FechaReserva = reservaDTO.FechaReserva;
 
             _context.Entry(reserva).State = EntityState.Modified;
 

@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Laboratorio.Entities;
 using Laboratorio.Data;
+using AutoMapper;
+using Laboratorio.DTOs;
 namespace Laboratorio.Controllers
 {
     [Route("api/[controller]")]
@@ -10,9 +12,12 @@ namespace Laboratorio.Controllers
     {
         private readonly RestauranteContext _context;
 
-        public OrdenController(RestauranteContext context)
+        private readonly IMapper _mapper;
+
+        public OrdenController(RestauranteContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -35,8 +40,15 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Orden>> PostOrden(Orden orden)
+        public async Task<ActionResult<Orden>> PostOrden(OrdenDTO ordenDTO)
         {
+            var orden = new Orden
+            {
+                EmpleadoId = ordenDTO.EmpleadoId,
+                MesaId = ordenDTO.MesaId,
+                MontoTotal = ordenDTO.MontoTotal
+            };
+
             _context.Ordenes.Add(orden);
             await _context.SaveChangesAsync();
 
@@ -44,12 +56,17 @@ namespace Laboratorio.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrden(int id, Orden orden)
+        public async Task<IActionResult> PutOrden(int id, OrdenDTO ordenDTO)
         {
-            if (id != orden.Id)
+            var orden = await _context.Ordenes.FindAsync(id);
+            if (orden == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+
+            orden.EmpleadoId = ordenDTO.EmpleadoId;
+            orden.MesaId = ordenDTO.MesaId;
+            orden.MontoTotal = ordenDTO.MontoTotal;
 
             _context.Entry(orden).State = EntityState.Modified;
 
