@@ -4,7 +4,9 @@ using Laboratorio.Entities;
 using Laboratorio.Data;
 using AutoMapper;
 using Laboratorio.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
+[Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class ComandaController : ControllerBase

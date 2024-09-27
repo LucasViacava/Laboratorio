@@ -4,6 +4,7 @@ using Laboratorio.Entities;
 using Laboratorio.Data;
 using AutoMapper;
 using Laboratorio.DTOs;
+using Microsoft.AspNetCore.Authorization;
 namespace Laboratorio.Controllers
 {
     [Route("api/[controller]")]
@@ -38,7 +39,7 @@ namespace Laboratorio.Controllers
 
             return menuItem;
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<MenuItem>> PostMenuItem(MenuItemDTO menuItemDTO)
         {
@@ -55,7 +56,7 @@ namespace Laboratorio.Controllers
 
             return CreatedAtAction(nameof(GetMenuItem), new { id = menuItem.Id }, menuItem);
         }
-
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMenuItem(int id, MenuItemDTO menuItemDTO)
         {
@@ -90,7 +91,7 @@ namespace Laboratorio.Controllers
 
             return NoContent();
         }
-
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMenuItem(int id)
         {

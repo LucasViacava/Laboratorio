@@ -4,6 +4,7 @@ using Laboratorio.Entities;
 using Laboratorio.Data;
 using AutoMapper;
 using Laboratorio.DTOs;
+using Microsoft.AspNetCore.Authorization;
 namespace Laboratorio.Controllers
 {
     [Route("api/[controller]")]
@@ -38,7 +39,7 @@ namespace Laboratorio.Controllers
 
             return mesa;
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Mesa>> PostMesa(MesaDTO mesaDTO)
         {
@@ -54,7 +55,7 @@ namespace Laboratorio.Controllers
 
             return CreatedAtAction(nameof(GetMesa), new { id = mesa.Id }, mesa);
         }
-
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMesa(int id, MesaDTO mesaDTO)
         {
@@ -88,7 +89,7 @@ namespace Laboratorio.Controllers
 
             return NoContent();
         }
-
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMesa(int id)
         {

@@ -4,8 +4,10 @@ using Laboratorio.Entities;
 using Laboratorio.Data;
 using AutoMapper;
 using Laboratorio.DTOs;
+using Microsoft.AspNetCore.Authorization;
 namespace Laboratorio.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class OrdenController : ControllerBase
