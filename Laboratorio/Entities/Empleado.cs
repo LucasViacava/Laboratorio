@@ -15,6 +15,10 @@ namespace Laboratorio.Entities
         [Required]
         public string Ubicacion { get; set; }
         [Required]
+        public string UserName { get; set; }
+        [Required] 
+        public string Password { get; set; }
+        [Required]
         public DateTime FechaContratacion { get; set; }
         [Required]
         public decimal Salario { get; set; }

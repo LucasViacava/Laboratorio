@@ -1,91 +1,56 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Laboratorio.DTOs;
 using Laboratorio.Entities;
-using Laboratorio.Data;
-using AutoMapper;
-using Laboratorio.DTOs;
+using Laboratorio.Services;
+using Microsoft.AspNetCore.Mvc;
+
 namespace Laboratorio.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class OrdenItemController : ControllerBase
     {
-        private readonly RestauranteContext _context;
+        private readonly OrdenItemService _ordenItemService;
 
-        private readonly IMapper _mapper;
-
-        public OrdenItemController(RestauranteContext context, IMapper mapper)
+        public OrdenItemController(OrdenItemService ordenItemService)
         {
-            _context = context;
-            _mapper = mapper;
+            _ordenItemService = ordenItemService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrdenItem>>> GetOrdenItems()
         {
-            return await _context.OrdenItems.ToListAsync();
+            var ordenItems = await _ordenItemService.ObtenerOrdenItems();
+            return Ok(ordenItems);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<OrdenItem?>> GetOrdenItem(int id)
         {
-            var ordenItem = await _context.OrdenItems.FindAsync(id);
+            var ordenItem = await _ordenItemService.ObtenerOrdenItemPorId(id);
 
             if (ordenItem == null)
             {
                 return NotFound();
             }
 
-            return ordenItem;
+            return Ok(ordenItem);
         }
 
         [HttpPost]
         public async Task<ActionResult<OrdenItem>> PostOrdenItem(OrdenItemDTO ordenItemDTO)
         {
-            var ordenItem = new OrdenItem
-            {
-                OrdenId = ordenItemDTO.OrdenId,
-                MenuItemId = ordenItemDTO.MenuItemId,
-                Cantidad = ordenItemDTO.Cantidad,
-                Precio = ordenItemDTO.Precio
-            };
-
-            _context.OrdenItems.Add(ordenItem);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetOrdenItem), new { id = ordenItem.Id }, ordenItem);
+            var nuevoOrdenItem = await _ordenItemService.CrearOrdenItem(ordenItemDTO);
+            return CreatedAtAction(nameof(GetOrdenItem), new { id = nuevoOrdenItem.Id }, nuevoOrdenItem);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOrdenItem(int id, OrdenItemDTO ordenItemDTO)
         {
-            var ordenItem = await _context.OrdenItems.FindAsync(id);
-            if (ordenItem == null)
+            var actualizado = await _ordenItemService.ActualizarOrdenItem(id, ordenItemDTO);
+
+            if (!actualizado)
             {
                 return NotFound();
-            }
-
-            ordenItem.OrdenId = ordenItemDTO.OrdenId;
-            ordenItem.MenuItemId = ordenItemDTO.MenuItemId;
-            ordenItem.Cantidad = ordenItemDTO.Cantidad;
-            ordenItem.Precio = ordenItemDTO.Precio;
-
-            _context.Entry(ordenItem).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrdenItemExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
             }
 
             return NoContent();
@@ -94,21 +59,14 @@ namespace Laboratorio.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrdenItem(int id)
         {
-            var ordenItem = await _context.OrdenItems.FindAsync(id);
-            if (ordenItem == null)
+            var eliminado = await _ordenItemService.EliminarOrdenItem(id);
+
+            if (!eliminado)
             {
                 return NotFound();
             }
 
-            _context.OrdenItems.Remove(ordenItem);
-            await _context.SaveChangesAsync();
-
             return NoContent();
-        }
-
-        private bool OrdenItemExists(int id)
-        {
-            return _context.OrdenItems.Any(e => e.Id == id);
         }
     }
 }

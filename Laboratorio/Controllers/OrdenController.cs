@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Laboratorio.DTOs;
 using Laboratorio.Entities;
-using Laboratorio.Data;
-using AutoMapper;
-using Laboratorio.DTOs;
+using Laboratorio.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
 namespace Laboratorio.Controllers
 {
     [Authorize]
@@ -12,80 +11,48 @@ namespace Laboratorio.Controllers
     [ApiController]
     public class OrdenController : ControllerBase
     {
-        private readonly RestauranteContext _context;
+        private readonly OrdenService _ordenService;
 
-        private readonly IMapper _mapper;
-
-        public OrdenController(RestauranteContext context, IMapper mapper)
+        public OrdenController(OrdenService ordenService)
         {
-            _context = context;
-            _mapper = mapper;
+            _ordenService = ordenService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Orden>>> GetOrdenes()
         {
-            return await _context.Ordenes.ToListAsync();
+            var ordenes = await _ordenService.ObtenerOrdenes();
+            return Ok(ordenes);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Orden?>> GetOrden(int id)
         {
-            var orden = await _context.Ordenes.FindAsync(id);
+            var orden = await _ordenService.ObtenerOrdenPorId(id);
 
             if (orden == null)
             {
                 return NotFound();
             }
 
-            return orden;
+            return Ok(orden);
         }
 
         [HttpPost]
         public async Task<ActionResult<Orden>> PostOrden(OrdenDTO ordenDTO)
         {
-            var orden = new Orden
-            {
-                EmpleadoId = ordenDTO.EmpleadoId,
-                MesaId = ordenDTO.MesaId,
-                MontoTotal = ordenDTO.MontoTotal
-            };
-
-            _context.Ordenes.Add(orden);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetOrden), new { id = orden.Id }, orden);
+            var nuevaOrden = await _ordenService.CrearOrden(ordenDTO);
+            return CreatedAtAction(nameof(GetOrden), new { id = nuevaOrden.Id }, nuevaOrden);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOrden(int id, OrdenDTO ordenDTO)
         {
-            var orden = await _context.Ordenes.FindAsync(id);
-            if (orden == null)
+            var actualizado = await _ordenService.ActualizarOrden(id, ordenDTO);
+
+            if (!actualizado)
             {
                 return NotFound();
-            }
-
-            orden.EmpleadoId = ordenDTO.EmpleadoId;
-            orden.MesaId = ordenDTO.MesaId;
-            orden.MontoTotal = ordenDTO.MontoTotal;
-
-            _context.Entry(orden).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrdenExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
             }
 
             return NoContent();
@@ -94,21 +61,14 @@ namespace Laboratorio.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrden(int id)
         {
-            var orden = await _context.Ordenes.FindAsync(id);
-            if (orden == null)
+            var eliminado = await _ordenService.EliminarOrden(id);
+
+            if (!eliminado)
             {
                 return NotFound();
             }
 
-            _context.Ordenes.Remove(orden);
-            await _context.SaveChangesAsync();
-
             return NoContent();
-        }
-
-        private bool OrdenExists(int id)
-        {
-            return _context.Ordenes.Any(e => e.Id == id);
         }
     }
 }

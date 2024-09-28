@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Laboratorio.DTOs;
 using Laboratorio.Entities;
-using Laboratorio.Data;
-using AutoMapper;
-using Laboratorio.DTOs;
+using Laboratorio.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
 namespace Laboratorio.Controllers
 {
     [Authorize]
@@ -12,82 +11,48 @@ namespace Laboratorio.Controllers
     [ApiController]
     public class PagoController : ControllerBase
     {
-        private readonly RestauranteContext _context;
+        private readonly PagoService _pagoService;
 
-        private readonly IMapper _mapper;
-
-        public PagoController(RestauranteContext context, IMapper mapper)
+        public PagoController(PagoService pagoService)
         {
-            _context = context;
-            _mapper = mapper;
+            _pagoService = pagoService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Pago>>> GetPagos()
         {
-            return await _context.Pagos.ToListAsync();
+            var pagos = await _pagoService.ObtenerPagos();
+            return Ok(pagos);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Pago?>> GetPago(int id)
         {
-            var pago = await _context.Pagos.FindAsync(id);
+            var pago = await _pagoService.ObtenerPagoPorId(id);
 
             if (pago == null)
             {
                 return NotFound();
             }
 
-            return pago;
+            return Ok(pago);
         }
 
         [HttpPost]
         public async Task<ActionResult<Pago>> PostPago(PagoDTO pagoDTO)
         {
-            var pago = new Pago
-            {
-                OrdenId = pagoDTO.OrdenId,
-                Monto = pagoDTO.Monto,
-                Metodo = pagoDTO.Metodo,
-                FechaPago = pagoDTO.FechaPago
-            };
-
-            _context.Pagos.Add(pago);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetPago), new { id = pago.Id }, pago);
+            var nuevoPago = await _pagoService.CrearPago(pagoDTO);
+            return CreatedAtAction(nameof(GetPago), new { id = nuevoPago.Id }, nuevoPago);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPago(int id, PagoDTO pagoDTO)
         {
-            var pago = await _context.Pagos.FindAsync(id);
-            if (pago == null)
+            var actualizado = await _pagoService.ActualizarPago(id, pagoDTO);
+
+            if (!actualizado)
             {
                 return NotFound();
-            }
-
-            pago.OrdenId = pagoDTO.OrdenId;
-            pago.Monto = pagoDTO.Monto;
-            pago.Metodo = pagoDTO.Metodo;
-            pago.FechaPago = pagoDTO.FechaPago;
-
-            _context.Entry(pago).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PagoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
             }
 
             return NoContent();
@@ -96,21 +61,14 @@ namespace Laboratorio.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePago(int id)
         {
-            var pago = await _context.Pagos.FindAsync(id);
-            if (pago == null)
+            var eliminado = await _pagoService.EliminarPago(id);
+
+            if (!eliminado)
             {
                 return NotFound();
             }
 
-            _context.Pagos.Remove(pago);
-            await _context.SaveChangesAsync();
-
             return NoContent();
-        }
-
-        private bool PagoExists(int id)
-        {
-            return _context.Pagos.Any(e => e.Id == id);
         }
     }
 }

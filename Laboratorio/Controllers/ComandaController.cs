@@ -1,89 +1,56 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Laboratorio.DTOs;
 using Laboratorio.Entities;
-using Laboratorio.Data;
-using AutoMapper;
-using Laboratorio.DTOs;
+using Laboratorio.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 [Authorize]
 [Route("api/[controller]")]
 [ApiController]
 public class ComandaController : ControllerBase
 {
-    private readonly RestauranteContext _context;
-    private readonly IMapper _mapper;
+    private readonly ComandaService _comandaService;
 
-    public ComandaController(RestauranteContext context, IMapper mapper)
+    public ComandaController(ComandaService comandaService)
     {
-        _context = context;
-        _mapper = mapper;
+        _comandaService = comandaService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Comanda>>> GetComandas()
     {
-        return await _context.Comandas.ToListAsync();
+        var comandas = await _comandaService.ObtenerComandas();
+        return Ok(comandas);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Comanda>> GetComanda(int id)
     {
-        var comanda = await _context.Comandas.FindAsync(id);
+        var comanda = await _comandaService.ObtenerComandaPorId(id);
 
         if (comanda == null)
         {
             return NotFound();
         }
 
-        return comanda;
+        return Ok(comanda);
     }
 
     [HttpPost]
     public async Task<ActionResult<Comanda>> PostComanda(ComandaDTO comandaDTO)
     {
-        var comanda = new Comanda
-        {
-            PedidoId = comandaDTO.PedidoId,
-            MenuItemId = comandaDTO.MenuItemId,
-            Cantidad = comandaDTO.Cantidad
-        };
-
-        _context.Comandas.Add(comanda);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetComanda), new { id = comanda.Id }, comanda);
+        var nuevaComanda = await _comandaService.CrearComanda(comandaDTO);
+        return CreatedAtAction(nameof(GetComanda), new { id = nuevaComanda.Id }, nuevaComanda);
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> PutComanda(int id, ComandaDTO comandaDTO)
     {
-        var comanda = await _context.Comandas.FindAsync(id);
-        if (comanda == null)
+        var actualizado = await _comandaService.ActualizarComanda(id, comandaDTO);
+
+        if (!actualizado)
         {
             return NotFound();
-        }
-
-        comanda.PedidoId = comandaDTO.PedidoId;
-        comanda.MenuItemId = comandaDTO.MenuItemId;
-        comanda.Cantidad = comandaDTO.Cantidad;
-
-        _context.Entry(comanda).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ComandaExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
         }
 
         return NoContent();
@@ -92,20 +59,13 @@ public class ComandaController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteComanda(int id)
     {
-        var comanda = await _context.Comandas.FindAsync(id);
-        if (comanda == null)
+        var eliminado = await _comandaService.EliminarComanda(id);
+
+        if (!eliminado)
         {
             return NotFound();
         }
 
-        _context.Comandas.Remove(comanda);
-        await _context.SaveChangesAsync();
-
         return NoContent();
-    }
-
-    private bool ComandaExists(int id)
-    {
-        return _context.Comandas.Any(e => e.Id == id);
     }
 }

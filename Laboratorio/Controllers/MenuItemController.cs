@@ -1,115 +1,76 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Laboratorio.DTOs;
 using Laboratorio.Entities;
-using Laboratorio.Data;
-using AutoMapper;
-using Laboratorio.DTOs;
+using Laboratorio.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
 namespace Laboratorio.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class MenuItemController : ControllerBase
     {
-        private readonly RestauranteContext _context;
+        private readonly MenuItemService _menuItemService;
 
-        private readonly IMapper _mapper;
-
-        public MenuItemController(RestauranteContext context, IMapper mapper)
+        public MenuItemController(MenuItemService menuItemService)
         {
-            _context = context;
-            _mapper = mapper;
+            _menuItemService = menuItemService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MenuItem>>> GetMenuItems()
         {
-            return await _context.MenuItems.ToListAsync();
+            var menuItems = await _menuItemService.ObtenerMenuItems();
+            return Ok(menuItems);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<MenuItem?>> GetMenuItem(int id)
         {
-            var menuItem = await _context.MenuItems.FindAsync(id);
+            var menuItem = await _menuItemService.ObtenerMenuItemPorId(id);
 
             if (menuItem == null)
             {
                 return NotFound();
             }
 
-            return menuItem;
+            return Ok(menuItem);
         }
+
         [Authorize]
         [HttpPost]
         public async Task<ActionResult<MenuItem>> PostMenuItem(MenuItemDTO menuItemDTO)
         {
-            var menuItem = new MenuItem
-            {
-                Nombre = menuItemDTO.Nombre,
-                Descripcion = menuItemDTO.Descripcion,
-                Precio = menuItemDTO.Precio,
-                Categoria = menuItemDTO.Categoria
-            };
-
-            _context.MenuItems.Add(menuItem);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetMenuItem), new { id = menuItem.Id }, menuItem);
+            var nuevoMenuItem = await _menuItemService.CrearMenuItem(menuItemDTO);
+            return CreatedAtAction(nameof(GetMenuItem), new { id = nuevoMenuItem.Id }, nuevoMenuItem);
         }
+
         [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMenuItem(int id, MenuItemDTO menuItemDTO)
         {
-            var menuItem = await _context.MenuItems.FindAsync(id);
-            if (menuItem == null)
+            var actualizado = await _menuItemService.ActualizarMenuItem(id, menuItemDTO);
+
+            if (!actualizado)
             {
                 return NotFound();
             }
 
-            menuItem.Nombre = menuItemDTO.Nombre;
-            menuItem.Descripcion = menuItemDTO.Descripcion;
-            menuItem.Precio = menuItemDTO.Precio;
-            menuItem.Categoria = menuItemDTO.Categoria;
-
-            _context.Entry(menuItem).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MenuItemExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
             return NoContent();
         }
+
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMenuItem(int id)
         {
-            var menuItem = await _context.MenuItems.FindAsync(id);
-            if (menuItem == null)
+            var eliminado = await _menuItemService.EliminarMenuItem(id);
+
+            if (!eliminado)
             {
                 return NotFound();
             }
 
-            _context.MenuItems.Remove(menuItem);
-            await _context.SaveChangesAsync();
-
             return NoContent();
-        }
-
-        private bool MenuItemExists(int id)
-        {
-            return _context.MenuItems.Any(e => e.Id == id);
         }
     }
 }

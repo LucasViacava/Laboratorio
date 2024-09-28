@@ -1,4 +1,5 @@
 using Laboratorio.Data;
+using Laboratorio.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
@@ -8,35 +9,42 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de la cadena de conexión de la base de datos
 builder.Services.AddDbContext<RestauranteContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("LaboratorioDb")));
 
-// Configuración de JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true, // Validar el emisor
-            ValidateAudience = true, // Validar la audiencia
-            ValidateLifetime = true, // Validar que el token no esté expirado
-            ValidateIssuerSigningKey = true, // Validar la firma del token
-            ValidIssuer = builder.Configuration["Jwt:Issuer"], // Emisor válido (definido en appsettings.json)
-            ValidAudience = builder.Configuration["Jwt:Audience"], // Audiencia válida (definido en appsettings.json)
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])) // Clave de firma
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
         };
     });
 
-// Servicios adicionales
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddScoped<EmpleadoService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<ComandaService>();
+builder.Services.AddScoped<MenuItemService>();
+builder.Services.AddScoped<MesaService>();
+builder.Services.AddScoped<OrdenItemService>();
+builder.Services.AddScoped<OrdenService>();
+builder.Services.AddScoped<PagoService>();
+builder.Services.AddScoped<ReservaService>();
+builder.Services.AddScoped<RolService>();
+
 var app = builder.Build();
 
-// Manejador global de excepciones
 app.UseExceptionHandler(configureOptions =>
 {
     configureOptions.Run(async context =>
@@ -46,11 +54,10 @@ app.UseExceptionHandler(configureOptions =>
 
         context.Response.StatusCode = (int)HttpStatusCode.Conflict;
         context.Response.ContentType = "application/json";
-        await context.Response.WriteAsJsonAsync(new { estatus = 409, message = "Ocurrió un error", cause = exception?.Message });
+        await context.Response.WriteAsJsonAsync(new { estatus = 409, message = "Ocurriï¿½ un error", cause = exception?.Message });
     });
 });
 
-// Configuración del pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -60,11 +67,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Habilitar autenticación y autorización
-app.UseAuthentication(); // JWT middleware
+app.UseAuthentication();
 app.UseAuthorization();
 
-// Mapear los controladores
 app.MapControllers();
 
 app.Run();

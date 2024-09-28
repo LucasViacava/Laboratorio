@@ -1,83 +1,56 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Laboratorio.DTOs;
 using Laboratorio.Entities;
-using Laboratorio.Data;
-using AutoMapper;
-using Laboratorio.DTOs;
+using Laboratorio.Services;
+using Microsoft.AspNetCore.Mvc;
+
 namespace Laboratorio.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class RolController : ControllerBase
     {
-        private readonly RestauranteContext _context;
+        private readonly RolService _rolService;
 
-        private readonly IMapper _mapper;
-
-        public RolController(RestauranteContext context, IMapper mapper)
+        public RolController(RolService rolService)
         {
-            _context = context;
-            _mapper = mapper;
+            _rolService = rolService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Rol>>> GetRoles()
         {
-            return await _context.Roles.ToListAsync();
+            var roles = await _rolService.ObtenerRoles();
+            return Ok(roles);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Rol?>> GetRol(int id)
         {
-            var rol = await _context.Roles.FindAsync(id);
+            var rol = await _rolService.ObtenerRolPorId(id);
 
             if (rol == null)
             {
                 return NotFound();
             }
 
-            return rol;
+            return Ok(rol);
         }
 
         [HttpPost]
         public async Task<ActionResult<Rol>> PostRol([FromBody] RolDTO rolDTO)
         {
-            var rol = new Rol
-            {
-                Descripcion = rolDTO.Descripcion
-            };
-            _context.Roles.Add(rol);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetRol), new { id = rol.Id }, rol);
+            var nuevoRol = await _rolService.CrearRol(rolDTO);
+            return CreatedAtAction(nameof(GetRol), new { id = nuevoRol.Id }, nuevoRol);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRol(int id, RolDTO rolDTO)
         {
-            var rol = await _context.Roles.FindAsync(id);
-            if (rol == null)
+            var actualizado = await _rolService.ActualizarRol(id, rolDTO);
+
+            if (!actualizado)
             {
                 return NotFound();
-            }
-            rol.Descripcion = rolDTO.Descripcion;
-
-            _context.Entry(rol).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!RolExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
             }
 
             return NoContent();
@@ -86,21 +59,14 @@ namespace Laboratorio.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRol(int id)
         {
-            var rol = await _context.Roles.FindAsync(id);
-            if (rol == null)
+            var eliminado = await _rolService.EliminarRol(id);
+
+            if (!eliminado)
             {
                 return NotFound();
             }
 
-            _context.Roles.Remove(rol);
-            await _context.SaveChangesAsync();
-
             return NoContent();
-        }
-
-        private bool RolExists(int id)
-        {
-            return _context.Roles.Any(e => e.Id == id);
         }
     }
 }
