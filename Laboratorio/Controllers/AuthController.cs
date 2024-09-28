@@ -26,9 +26,3 @@ public class AuthController : ControllerBase
         return Ok(new { token });
     }
 }
-
-public class UserLogin
-{
-    public string Username { get; set; }
-    public string Password { get; set; }
-}
