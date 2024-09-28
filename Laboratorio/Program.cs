@@ -42,6 +42,7 @@ builder.Services.AddScoped<OrdenService>();
 builder.Services.AddScoped<PagoService>();
 builder.Services.AddScoped<ReservaService>();
 builder.Services.AddScoped<RolService>();
+builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 
 var app = builder.Build();
 

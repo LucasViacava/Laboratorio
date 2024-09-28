@@ -8,6 +8,8 @@ namespace Laboratorio.Entities
         {
             this.FechaCreacion = DateTimeOffset.Now;
             this.Estado = EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Pendiente);
+            this.Comandas = new List<Comanda>();
+            this.OrdenItems = new List<OrdenItem>();
         }
         [Key]
         public int Id { get; set; }
@@ -25,5 +27,7 @@ namespace Laboratorio.Entities
 
         public Empleado Empleado { get; set; }
         public Mesa Mesa { get; set; }
+        public List<OrdenItem> OrdenItems { get; set; }
+        public List<Comanda> Comandas { get; set; }
     }
 }

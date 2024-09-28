@@ -13,14 +13,13 @@ namespace Laboratorio.Entities
         [Key]
         public int Id { get; set; }
         [Required]
-        public int PedidoId { get; set; }
+        public int OrdenId { get; set; }
         [Required]
         public int MenuItemId { get; set; }
         [Required]
         public int Cantidad { get; set; }
         public string Estado { get; set; } = string.Empty;
         public DateTimeOffset FechaCreacion { get; set; }
-        [ForeignKey("PedidoId")]
         public Orden Orden { get; set; }
         public MenuItem MenuItem { get; set; }
     }
