@@ -338,5 +338,41 @@ namespace Laboratorio.Services
 
             return "Ocupada";
         }
+        public async Task<bool> CobrarCuentaAsync(int ordenId, string metodoPago)
+        {
+            var orden = await _context.Ordenes
+                .Include(o => o.Comandas)
+                .FirstOrDefaultAsync(o => o.Id == ordenId);
+
+            if (orden == null)
+            {
+                throw new Exception($"La orden con ID {ordenId} no existe.");
+            }
+
+            if (orden.Estado == EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Finalizado))
+            {
+                throw new Exception($"La orden con ID {ordenId} ya ha sido finalizada.");
+            }
+
+            orden.Estado = EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Finalizado);
+            orden.FechaFinalizacion = DateTimeOffset.Now;
+
+            foreach (var comanda in orden.Comandas)
+            {
+                comanda.Estado = EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Finalizado);
+            }
+
+            var pago = new Pago
+            {
+                OrdenId = ordenId,
+                Monto = orden.MontoTotal,
+                Metodo = metodoPago,
+                FechaPago = DateTimeOffset.Now
+            };
+
+            await _context.Pagos.AddAsync(pago);
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
+        }
     }
 }

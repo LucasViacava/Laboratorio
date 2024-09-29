@@ -120,5 +120,25 @@ namespace Laboratorio.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost("CobrarCuenta")]
+        public async Task<IActionResult> CobrarCuenta([FromQuery] int ordenId, [FromQuery] string metodoPago)
+        {
+            try
+            {
+                var result = await _restaurantService.CobrarCuentaAsync(ordenId, metodoPago);
+                if (result)
+                {
+                    return Ok("La cuenta ha sido cobrada exitosamente y la orden se ha finalizado.");
+                }
+                else
+                {
+                    return BadRequest("No se pudo procesar el cobro.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

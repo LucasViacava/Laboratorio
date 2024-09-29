@@ -14,6 +14,7 @@ namespace Laboratorio.Services
         Task<bool> UpdateProductStatusAsync(int comandaId, string estado);
         Task<bool> UpdateMesaStatusForReadyOrdersAsync(int mesaId);
         Task<List<MesaEstadoDTO>> GetMesasWithStatusAsync();
+        Task<bool> CobrarCuentaAsync(int ordenId, string metodoPago);
     }
 
 }
