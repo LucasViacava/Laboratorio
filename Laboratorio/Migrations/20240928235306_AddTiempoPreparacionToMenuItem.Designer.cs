@@ -4,6 +4,7 @@ using Laboratorio.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Laboratorio.Migrations
 {
     [DbContext(typeof(RestauranteContext))]
-    partial class RestauranteContextModelSnapshot : ModelSnapshot
+    [Migration("20240928235306_AddTiempoPreparacionToMenuItem")]
+    partial class AddTiempoPreparacionToMenuItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -105,8 +107,8 @@ namespace Laboratorio.Migrations
                         new
                         {
                             Id = 1,
-                            FechaContratacion = new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Local).AddTicks(8232),
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8209), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaContratacion = new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Local).AddTicks(6811),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6788), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Juan Perez",
                             Password = "1234",
                             RolId = 1,
@@ -117,8 +119,8 @@ namespace Laboratorio.Migrations
                         new
                         {
                             Id = 2,
-                            FechaContratacion = new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Local).AddTicks(8239),
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8238), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaContratacion = new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Local).AddTicks(6817),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6816), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Maria Garcia",
                             Password = "1234",
                             RolId = 2,
@@ -129,8 +131,8 @@ namespace Laboratorio.Migrations
                         new
                         {
                             Id = 3,
-                            FechaContratacion = new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Local).AddTicks(8240),
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8240), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaContratacion = new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Local).AddTicks(6819),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6818), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Carlos Sanchez",
                             Password = "1234",
                             RolId = 3,
@@ -141,8 +143,8 @@ namespace Laboratorio.Migrations
                         new
                         {
                             Id = 4,
-                            FechaContratacion = new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Local).AddTicks(8242),
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8241), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaContratacion = new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Local).AddTicks(6820),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6820), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Ana Lopez",
                             Password = "1234",
                             RolId = 4,
@@ -153,8 +155,8 @@ namespace Laboratorio.Migrations
                         new
                         {
                             Id = 5,
-                            FechaContratacion = new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Local).AddTicks(8243),
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8242), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaContratacion = new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Local).AddTicks(6822),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6821), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Roberto Diaz",
                             Password = "1234",
                             RolId = 5,
@@ -200,7 +202,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 1,
                             Categoria = "Principal",
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8270), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6847), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Milanesa a Caballo",
                             Precio = 800m,
                             TiempoPreparacion = 15
@@ -209,7 +211,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 2,
                             Categoria = "Vegetariano",
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8273), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6849), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Hamburguesa de Garbanzo",
                             Precio = 500m,
                             TiempoPreparacion = 10
@@ -218,7 +220,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 3,
                             Categoria = "Entrada",
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8274), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6851), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Ensalada Caesar",
                             Precio = 700m,
                             TiempoPreparacion = 5
@@ -227,7 +229,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 4,
                             Categoria = "Principal",
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8275), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6852), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Pizza Margherita",
                             Precio = 900m,
                             TiempoPreparacion = 20
@@ -236,7 +238,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 5,
                             Categoria = "Principal",
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8276), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6853), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Spaghetti a la Bolognesa",
                             Precio = 850m,
                             TiempoPreparacion = 18
@@ -245,7 +247,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 6,
                             Categoria = "Principal",
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8277), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6853), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Tacos al Pastor",
                             Precio = 600m,
                             TiempoPreparacion = 12
@@ -254,7 +256,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 7,
                             Categoria = "Bebida",
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8278), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6854), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Corona",
                             Precio = 200m,
                             TiempoPreparacion = 1
@@ -263,7 +265,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 8,
                             Categoria = "Bebida",
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8279), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6855), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Daikiri",
                             Precio = 300m,
                             TiempoPreparacion = 7
@@ -272,7 +274,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 9,
                             Categoria = "Bebida",
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8280), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6856), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Limonada",
                             Precio = 150m,
                             TiempoPreparacion = 2
@@ -281,7 +283,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 10,
                             Categoria = "Postre",
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8280), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6857), new TimeSpan(0, -3, 0, 0, 0)),
                             Nombre = "Brownie con Helado",
                             Precio = 400m,
                             TiempoPreparacion = 9
@@ -318,7 +320,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 1,
                             Capacidad = 4,
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8252), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6829), new TimeSpan(0, -3, 0, 0, 0)),
                             Numero = 101,
                             Ubicacion = "Interior"
                         },
@@ -326,7 +328,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 2,
                             Capacidad = 2,
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8254), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6831), new TimeSpan(0, -3, 0, 0, 0)),
                             Numero = 102,
                             Ubicacion = "Terraza"
                         },
@@ -334,7 +336,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 3,
                             Capacidad = 6,
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8255), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6832), new TimeSpan(0, -3, 0, 0, 0)),
                             Numero = 103,
                             Ubicacion = "Interior"
                         },
@@ -342,7 +344,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 4,
                             Capacidad = 4,
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8256), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6833), new TimeSpan(0, -3, 0, 0, 0)),
                             Numero = 104,
                             Ubicacion = "Patio"
                         },
@@ -350,7 +352,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 5,
                             Capacidad = 8,
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8257), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6833), new TimeSpan(0, -3, 0, 0, 0)),
                             Numero = 105,
                             Ubicacion = "Terraza"
                         },
@@ -358,7 +360,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 6,
                             Capacidad = 2,
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8258), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6834), new TimeSpan(0, -3, 0, 0, 0)),
                             Numero = 106,
                             Ubicacion = "Interior"
                         },
@@ -366,7 +368,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 7,
                             Capacidad = 6,
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8258), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6835), new TimeSpan(0, -3, 0, 0, 0)),
                             Numero = 107,
                             Ubicacion = "Terraza"
                         },
@@ -374,7 +376,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 8,
                             Capacidad = 4,
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8259), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6836), new TimeSpan(0, -3, 0, 0, 0)),
                             Numero = 108,
                             Ubicacion = "Interior"
                         },
@@ -382,7 +384,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 9,
                             Capacidad = 2,
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8260), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6836), new TimeSpan(0, -3, 0, 0, 0)),
                             Numero = 109,
                             Ubicacion = "Interior"
                         },
@@ -390,7 +392,7 @@ namespace Laboratorio.Migrations
                         {
                             Id = 10,
                             Capacidad = 6,
-                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 21, 19, 9, 298, DateTimeKind.Unspecified).AddTicks(8261), new TimeSpan(0, -3, 0, 0, 0)),
+                            FechaCreacion = new DateTimeOffset(new DateTime(2024, 9, 28, 20, 53, 6, 24, DateTimeKind.Unspecified).AddTicks(6837), new TimeSpan(0, -3, 0, 0, 0)),
                             Numero = 110,
                             Ubicacion = "Terraza"
                         });
@@ -412,9 +414,6 @@ namespace Laboratorio.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("FechaCreacion")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("FechaFinalizacion")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<int?>("MesaId")

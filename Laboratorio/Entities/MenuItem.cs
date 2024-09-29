@@ -17,5 +17,6 @@ namespace Laboratorio.Entities
         public decimal Precio { get; set; }
         public string? Categoria { get; set; }
         public DateTimeOffset FechaCreacion { get; set; }
+        public int TiempoPreparacion { get; set; }
     }
 }

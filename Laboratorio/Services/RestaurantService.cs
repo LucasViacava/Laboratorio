@@ -119,5 +119,102 @@ namespace Laboratorio.Services
 
             return result > 0;
         }
+        public async Task<List<ComandaDTO>> GetPendingOrdersForEmployeeAsync(int empleadoId)
+        {
+            var comandasPendientes = await _context.Comandas
+                .Include(c => c.MenuItem)
+                .Include(c => c.Orden)
+                .Where(c => c.Estado == "Pendiente" && c.Orden.EmpleadoId == empleadoId)
+                .Select(c => new ComandaDTO
+                {
+                    Id = c.Id,
+                    MenuItemId = c.MenuItemId,
+                    MenuItemNombre = c.MenuItem.Nombre,
+                    Cantidad = c.Cantidad,
+                    Estado = c.Estado,
+                    FechaCreacion = c.FechaCreacion
+                })
+                .ToListAsync();
+
+            return comandasPendientes;
+        }
+
+
+        public async Task<bool> UpdateOrderStatusToInPreparationAsync(int comandaId)
+        {
+            var comanda = await _context.Comandas.Include(c => c.MenuItem).FirstOrDefaultAsync(c => c.Id == comandaId);
+            if (comanda == null)
+            {
+                throw new Exception($"La comanda con ID {comandaId} no existe.");
+            }
+
+            // Cambiar el estado y calcular el tiempo de preparación
+            comanda.Estado = "En Preparación";
+            comanda.FechaCreacion = DateTimeOffset.Now;
+
+            // Guardar cambios
+            _context.Comandas.Update(comanda);
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
+        }
+
+        public async Task<string> GetOrderPreparationTimeAsync(int mesaId, int ordenId)
+        {
+            var orden = await _context.Ordenes
+                .Include(o => o.OrdenItems).ThenInclude(oi => oi.MenuItem)
+                .FirstOrDefaultAsync(o => o.Id == ordenId && o.MesaId == mesaId);
+
+            if (orden == null)
+            {
+                throw new Exception($"No se encontró la orden con ID {ordenId} para la mesa {mesaId}.");
+            }
+
+            var tiempoTotalPreparacion = orden.OrdenItems.Max(oi => oi.MenuItem.TiempoPreparacion);
+
+            var tiempoTranscurrido = DateTime.Now - orden.FechaCreacion;
+
+            var tiempoRestante = tiempoTotalPreparacion - (int)tiempoTranscurrido.TotalMinutes;
+
+            if (tiempoRestante > 0)
+            {
+                return $"El tiempo total de preparación es de {tiempoTotalPreparacion} minutos. Tiempo restante: {tiempoRestante} minutos.";
+            }
+            else
+            {
+                var tiempoExcedido = Math.Abs(tiempoRestante);
+                return $"Se excedio el tiempo de preparación. Tiempo total de preparación era de {tiempoTotalPreparacion} minutos. " +
+                       $"Tiempo excedido: {tiempoExcedido} minutos.";
+            }
+        }
+
+        public async Task<List<OrdenInfoDTO>> GetOrderDetailsWithDelaysAsync()
+        {
+            var ordenes = await _context.Ordenes
+                .Include(o => o.OrdenItems)
+                .ThenInclude(oi => oi.MenuItem)
+                .Include(o => o.Empleado)
+                .ToListAsync();
+
+            var ordenesConTiempo = ordenes.Select(o => new OrdenInfoDTO
+            {
+                OrdenId = o.Id,
+                MesaId = o.MesaId,
+                EmpleadoNombre = o.Empleado?.Nombre,
+                Estado = o.Estado,
+                FechaCreacion = o.FechaCreacion,
+                FechaFinalizacion = o.FechaFinalizacion,
+                TiempoTotalPreparacion = CalcularTiempoDemora(o)
+            }).ToList();
+
+            return ordenesConTiempo;
+        }
+        private int CalcularTiempoDemora(Orden orden)
+        {
+            var fechaFinal = orden.FechaFinalizacion ?? DateTimeOffset.Now;
+            var tiempoTotal = (int)(fechaFinal - orden.FechaCreacion).TotalMinutes;
+
+            return tiempoTotal;
+        }
+
     }
 }

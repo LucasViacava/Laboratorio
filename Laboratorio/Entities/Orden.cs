@@ -24,6 +24,7 @@ namespace Laboratorio.Entities
         public decimal MontoTotal { get; set; }
         [Required]
         public DateTimeOffset FechaCreacion { get; set; }
+        public DateTimeOffset? FechaFinalizacion { get; set; }
 
         public Empleado Empleado { get; set; }
         public Mesa Mesa { get; set; }

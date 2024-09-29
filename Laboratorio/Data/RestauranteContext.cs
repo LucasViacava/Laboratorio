@@ -55,16 +55,16 @@ namespace Laboratorio.Data
 
             // Seed Data para MenuItems (10 platillos y bebidas)
             modelBuilder.Entity<MenuItem>().HasData(
-                new MenuItem { Id = 1, Nombre = "Milanesa a Caballo", Precio = 800m, Categoria = "Principal" },
-                new MenuItem { Id = 2, Nombre = "Hamburguesa de Garbanzo", Precio = 500m, Categoria = "Vegetariano" },
-                new MenuItem { Id = 3, Nombre = "Ensalada Caesar", Precio = 700m, Categoria = "Entrada" },
-                new MenuItem { Id = 4, Nombre = "Pizza Margherita", Precio = 900m, Categoria = "Principal" },
-                new MenuItem { Id = 5, Nombre = "Spaghetti a la Bolognesa", Precio = 850m, Categoria = "Principal" },
-                new MenuItem { Id = 6, Nombre = "Tacos al Pastor", Precio = 600m, Categoria = "Principal" },
-                new MenuItem { Id = 7, Nombre = "Corona", Precio = 200m, Categoria = "Bebida" },
-                new MenuItem { Id = 8, Nombre = "Daikiri", Precio = 300m, Categoria = "Bebida" },
-                new MenuItem { Id = 9, Nombre = "Limonada", Precio = 150m, Categoria = "Bebida" },
-                new MenuItem { Id = 10, Nombre = "Brownie con Helado", Precio = 400m, Categoria = "Postre" }
+                new MenuItem { Id = 1, Nombre = "Milanesa a Caballo", Precio = 800m, Categoria = "Principal", TiempoPreparacion = 15 },
+                new MenuItem { Id = 2, Nombre = "Hamburguesa de Garbanzo", Precio = 500m, Categoria = "Vegetariano", TiempoPreparacion = 10 },
+                new MenuItem { Id = 3, Nombre = "Ensalada Caesar", Precio = 700m, Categoria = "Entrada", TiempoPreparacion = 5 },
+                new MenuItem { Id = 4, Nombre = "Pizza Margherita", Precio = 900m, Categoria = "Principal", TiempoPreparacion = 20 },
+                new MenuItem { Id = 5, Nombre = "Spaghetti a la Bolognesa", Precio = 850m, Categoria = "Principal", TiempoPreparacion = 18 },
+                new MenuItem { Id = 6, Nombre = "Tacos al Pastor", Precio = 600m, Categoria = "Principal", TiempoPreparacion = 12 },
+                new MenuItem { Id = 7, Nombre = "Corona", Precio = 200m, Categoria = "Bebida", TiempoPreparacion = 1 },
+                new MenuItem { Id = 8, Nombre = "Daikiri", Precio = 300m, Categoria = "Bebida", TiempoPreparacion = 7 },
+                new MenuItem { Id = 9, Nombre = "Limonada", Precio = 150m, Categoria = "Bebida", TiempoPreparacion = 2 },
+                new MenuItem { Id = 10, Nombre = "Brownie con Helado", Precio = 400m, Categoria = "Postre", TiempoPreparacion = 9 }
             );
         }
     }
