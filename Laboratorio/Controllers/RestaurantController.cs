@@ -62,6 +62,34 @@ namespace Laboratorio.Controllers
             var result = await _restaurantService.GetOrderDetailsWithDelaysAsync();
             return Ok(result);
         }
+        [HttpGet("GetPendingProductsForEmployee/{empleadoId}")]
+        public async Task<IActionResult> GetPendingProductsForEmployee(int empleadoId)
+        {
+            var productosPendientes = await _restaurantService.GetPendingProductsForEmployeeAsync(empleadoId);
+            if (productosPendientes == null || !productosPendientes.Any())
+            {
+                return NotFound($"No se encontraron productos pendientes para el empleado con ID {empleadoId}.");
+            }
+
+            return Ok(productosPendientes);
+        }
+
+        [HttpPut("UpdateProductStatus/{comandaId}")]
+        public async Task<IActionResult> UpdateProductStatus(int comandaId, [FromBody] string estado)
+        {
+            if (string.IsNullOrEmpty(estado))
+            {
+                return BadRequest("El estado no puede estar vacío.");
+            }
+
+            var result = await _restaurantService.UpdateProductStatusAsync(comandaId, estado);
+            if (!result)
+            {
+                return StatusCode(500, "No se pudo actualizar el estado del producto.");
+            }
+
+            return Ok($"El estado del producto con comanda ID {comandaId} se actualizó a '{estado}'.");
+        }
 
     }
 }

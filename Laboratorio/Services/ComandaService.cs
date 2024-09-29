@@ -28,7 +28,6 @@ namespace Laboratorio.Services
         {
             var comanda = new Comanda
             {
-                //OrdenId = comandaDTO.OrdenId,
                 MenuItemId = comandaDTO.MenuItemId,
                 Cantidad = comandaDTO.Cantidad
             };
@@ -43,7 +42,6 @@ namespace Laboratorio.Services
             var comanda = await ObtenerComandaPorId(id);
             if (comanda == null) return false;
 
-            //comanda.OrdenId = comandaDTO.OrdenId;
             comanda.MenuItemId = comandaDTO.MenuItemId;
             comanda.Cantidad = comandaDTO.Cantidad;
 

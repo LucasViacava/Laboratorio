@@ -138,8 +138,6 @@ namespace Laboratorio.Services
 
             return comandasPendientes;
         }
-
-
         public async Task<bool> UpdateOrderStatusToInPreparationAsync(int comandaId)
         {
             var comanda = await _context.Comandas.Include(c => c.MenuItem).FirstOrDefaultAsync(c => c.Id == comandaId);
@@ -148,11 +146,9 @@ namespace Laboratorio.Services
                 throw new Exception($"La comanda con ID {comandaId} no existe.");
             }
 
-            // Cambiar el estado y calcular el tiempo de preparación
             comanda.Estado = "En Preparación";
             comanda.FechaCreacion = DateTimeOffset.Now;
 
-            // Guardar cambios
             _context.Comandas.Update(comanda);
             var result = await _context.SaveChangesAsync();
             return result > 0;
@@ -215,6 +211,41 @@ namespace Laboratorio.Services
 
             return tiempoTotal;
         }
+        public async Task<List<ComandaDTO>> GetPendingProductsForEmployeeAsync(int empleadoId)
+        {
+            var comandasPendientes = await _context.Ordenes
+                .Where(o => o.EmpleadoId == empleadoId)
+                .Include(o => o.OrdenItems)
+                .ThenInclude(oi => oi.MenuItem)
+                .Include(o => o.Comandas)
+                .SelectMany(o => o.Comandas)
+                .Where(c => c.Estado == "Pendiente")
+                .Select(c => new ComandaDTO
+                {
+                    Id = c.Id,
+                    MenuItemId = c.MenuItemId,
+                    Estado = c.Estado,
+                    FechaCreacion = c.FechaCreacion,
+                    MenuItemNombre = c.MenuItem.Nombre,
+                    Cantidad = c.Cantidad
+                })
+                .ToListAsync();
 
+            return comandasPendientes;
+        }
+        public async Task<bool> UpdateProductStatusAsync(int comandaId, string estado)
+        {
+            var comanda = await _context.Comandas.FirstOrDefaultAsync(c => c.Id == comandaId);
+            if (comanda == null)
+            {
+                throw new Exception($"No se encontró la comanda con ID {comandaId}.");
+            }
+
+            comanda.Estado = estado;
+            _context.Comandas.Update(comanda);
+            var result = await _context.SaveChangesAsync();
+
+            return result > 0;
+        }
     }
 }

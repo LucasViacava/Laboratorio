@@ -21,7 +21,6 @@ namespace Laboratorio.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Seed Data para Roles (5 roles diferentes)
             modelBuilder.Entity<Rol>().HasData(
                 new Rol { Id = 1, Descripcion = "Mozo" },
                 new Rol { Id = 2, Descripcion = "Chef" },
@@ -30,7 +29,6 @@ namespace Laboratorio.Data
                 new Rol { Id = 5, Descripcion = "Gerente" }
             );
 
-            // Seed Data para Empleados (5 empleados con diferentes roles)
             modelBuilder.Entity<Empleado>().HasData(
                 new Empleado { Id = 1, Nombre = "Juan Perez", Ubicacion = "Interior", UserName = "jperez", Password = "1234", FechaContratacion = DateTime.Now, Salario = 2000, RolId = 1 },
                 new Empleado { Id = 2, Nombre = "Maria Garcia", Ubicacion = "Cocina", UserName = "mgarcia", Password = "1234", FechaContratacion = DateTime.Now, Salario = 2500, RolId = 2 },
@@ -39,7 +37,6 @@ namespace Laboratorio.Data
                 new Empleado { Id = 5, Nombre = "Roberto Diaz", Ubicacion = "Oficina", UserName = "rdiaz", Password = "1234", FechaContratacion = DateTime.Now, Salario = 3000, RolId = 5 }
             );
 
-            // Seed Data para Mesas (10 mesas)
             modelBuilder.Entity<Mesa>().HasData(
                 new Mesa { Id = 1, Numero = 101, Capacidad = 4, Ubicacion = "Interior" },
                 new Mesa { Id = 2, Numero = 102, Capacidad = 2, Ubicacion = "Terraza" },
@@ -53,7 +50,6 @@ namespace Laboratorio.Data
                 new Mesa { Id = 10, Numero = 110, Capacidad = 6, Ubicacion = "Terraza" }
             );
 
-            // Seed Data para MenuItems (10 platillos y bebidas)
             modelBuilder.Entity<MenuItem>().HasData(
                 new MenuItem { Id = 1, Nombre = "Milanesa a Caballo", Precio = 800m, Categoria = "Principal", TiempoPreparacion = 15 },
                 new MenuItem { Id = 2, Nombre = "Hamburguesa de Garbanzo", Precio = 500m, Categoria = "Vegetariano", TiempoPreparacion = 10 },

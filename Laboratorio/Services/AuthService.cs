@@ -17,7 +17,6 @@ namespace Laboratorio.Services
 
         public string Authenticate(string username, string password)
         {
-            // Simula una validación básica de usuario.
             if (username == "admin" && password == "password")
             {
                 return GenerateJwtToken(username);
