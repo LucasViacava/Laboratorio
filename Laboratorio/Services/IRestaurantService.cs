@@ -12,6 +12,7 @@ namespace Laboratorio.Services
         Task<List<OrdenInfoDTO>> GetOrderDetailsWithDelaysAsync();
         Task<List<ComandaDTO>> GetPendingProductsForEmployeeAsync(int empleadoId);
         Task<bool> UpdateProductStatusAsync(int comandaId, string estado);
+        Task<bool> UpdateMesaStatusForReadyOrdersAsync(int mesaId);
     }
 
 }

@@ -247,5 +247,47 @@ namespace Laboratorio.Services
 
             return result > 0;
         }
+        public async Task<bool> UpdateMesaStatusForReadyOrdersAsync(int mesaId)
+        {
+            var mesa = await _context.Mesas.FirstOrDefaultAsync(m => m.Id == mesaId);
+            if (mesa == null)
+            {
+                throw new Exception($"La mesa con ID {mesaId} no existe.");
+            }
+
+            var ordenes = await _context.Ordenes
+                .Include(o => o.Comandas)
+                .Where(o => o.MesaId == mesaId && o.Estado == EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.EnPreparacion))
+                .ToListAsync();
+
+            if (!ordenes.Any())
+            {
+                throw new Exception($"No hay órdenes en preparación para la mesa {mesaId}.");
+            }
+
+            bool actualizacionRealizada = false;
+
+            foreach (var orden in ordenes)
+            {
+                var todasListas = orden.Comandas.All(c => c.Estado == "Listo para Servir");
+                if (todasListas)
+                {
+                    orden.Estado = EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Finalizado);
+                    orden.FechaFinalizacion = DateTimeOffset.Now;
+                    actualizacionRealizada = true;
+                }
+            }
+
+            if (!actualizacionRealizada)
+            {
+                throw new Exception("No se encontraron órdenes listas para finalizar en esta mesa.");
+            }
+
+            _context.Ordenes.UpdateRange(ordenes);
+
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
+        }
+
     }
 }

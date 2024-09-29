@@ -90,6 +90,22 @@ namespace Laboratorio.Controllers
 
             return Ok($"El estado del producto con comanda ID {comandaId} se actualizó a '{estado}'.");
         }
-
+        [HttpPost("UpdateMesaStatus/{mesaId}")]
+        public async Task<IActionResult> UpdateMesaStatus(int mesaId)
+        {
+            try
+            {
+                var result = await _restaurantService.UpdateMesaStatusForReadyOrdersAsync(mesaId);
+                if (!result)
+                {
+                    return BadRequest("No se pudieron actualizar los estados de las órdenes.");
+                }
+                return Ok("El estado de las órdenes se ha actualizado a 'Finalizado' correctamente.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
