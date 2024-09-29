@@ -107,5 +107,18 @@ namespace Laboratorio.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("GetMesasWithStatus")]
+        public async Task<IActionResult> GetMesasWithStatus()
+        {
+            try
+            {
+                var mesasConEstado = await _restaurantService.GetMesasWithStatusAsync();
+                return Ok(mesasConEstado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

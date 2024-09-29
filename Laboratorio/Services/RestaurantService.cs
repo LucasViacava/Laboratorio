@@ -288,6 +288,55 @@ namespace Laboratorio.Services
             var result = await _context.SaveChangesAsync();
             return result > 0;
         }
+        public async Task<List<MesaEstadoDTO>> GetMesasWithStatusAsync()
+        {
+            var mesas = await _context.Mesas.ToListAsync();
 
+            var ordenesPorMesa = await _context.Ordenes
+                .Where(o => o.MesaId.HasValue)
+                .ToListAsync();
+
+            var ordenesAgrupadas = ordenesPorMesa
+                .GroupBy(o => o.MesaId.Value)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var mesasConEstado = mesas.Select(m => new MesaEstadoDTO
+            {
+                MesaId = m.Id,
+                Numero = m.Numero,
+                Ubicacion = m.Ubicacion,
+                Estado = DeterminarEstadoMesa(m.Id, ordenesAgrupadas)
+            }).ToList();
+
+            return mesasConEstado;
+        }
+
+        private string DeterminarEstadoMesa(int mesaId, Dictionary<int, List<Orden>> ordenesPorMesa)
+        {
+            if (!ordenesPorMesa.ContainsKey(mesaId) || !ordenesPorMesa[mesaId].Any())
+            {
+                return "Disponible";
+            }
+
+            var ordenes = ordenesPorMesa[mesaId];
+
+            if (ordenes.All(o => o.Estado == EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Finalizado) ||
+                                 o.Estado == EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Cancelado)))
+            {
+                return "Disponible";
+            }
+
+            if (ordenes.Any(o => o.Estado == EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.EnPreparacion)))
+            {
+                return "En Preparación";
+            }
+
+            if (ordenes.Any(o => o.Estado == EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Pendiente)))
+            {
+                return "Pendiente";
+            }
+
+            return "Ocupada";
+        }
     }
 }
