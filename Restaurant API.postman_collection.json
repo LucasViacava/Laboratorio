@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "a7fa6b31-e94f-4c16-a847-52ff4c48333a",
-		"name": "Restaurant API",
+		"_postman_id": "722e403b-7e2d-4e45-8add-a4e9bd7b9351",
+		"name": "Restaurant API 2",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "38042953"
 	},
@@ -67,7 +67,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"createdBy\": \"Juan Perez\",\n    \"menuItems\": [\n        {\n            \"plato\": \"Milanesa a Caballo\",\n            \"cantidad\": 1\n        },\n        {\n            \"plato\": \"Hamburguesa de Garbanzo\",\n            \"cantidad\": 2\n        }\n    ],\n    \"mesa\": 1\n}"
+					"raw": "{\n    \"createdBy\": \"Juan Perez\",\n    \"menuItems\": [\n        {\n            \"plato\": \"Milanesa a Caballo\",\n            \"cantidad\": 1\n        },\n        {\n            \"plato\": \"Hamburguesa de Garbanzo\",\n            \"cantidad\": 2\n        },\n        {\n            \"plato\": \"Corona\",\n            \"cantidad\": 1\n        },\n        {\n            \"plato\": \"Daikiri\",\n            \"cantidad\": 1\n        }\n    ],\n    \"mesa\": 1\n}"
 				},
 				"url": {
 					"raw": "{{base_url}}/api/Restaurant/CreateOrder",
@@ -214,7 +214,7 @@
 			"response": []
 		},
 		{
-			"name": "Update Product Status",
+			"name": "Update Orden Status",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -222,22 +222,27 @@
 						"key": "Authorization",
 						"value": "Bearer {{authToken}}",
 						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "\"En Preparación\""
+					"raw": "\"Finalizado\""
 				},
 				"url": {
-					"raw": "{{base_url}}/api/Restaurant/UpdateProductStatus/21",
+					"raw": "{{base_url}}/api/Restaurant/UpdateOrdenStatus/9",
 					"host": [
 						"{{base_url}}"
 					],
 					"path": [
 						"api",
 						"Restaurant",
-						"UpdateProductStatus",
-						"21"
+						"UpdateOrdenStatus",
+						"9"
 					]
 				}
 			},
@@ -324,6 +329,174 @@
 							"key": "metodoPago",
 							"value": "Tarjeta"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all comandas",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/Comanda",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"Comanda"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all empleados",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/Empleado",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"Empleado"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all menu items",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/MenuItem",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"MenuItem"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all mesas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/Mesa",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"Mesa"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all ordenes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/Orden",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"Orden"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all orden items",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/OrdenItem",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"OrdenItem"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all pagos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/Pago",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"Pago"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all reservas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/Reserva",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"Reserva"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all roles",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/Rol",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"Rol"
 					]
 				}
 			},
