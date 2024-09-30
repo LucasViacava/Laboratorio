@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static Laboratorio.Entities.EstadoHelper;
 
 namespace Laboratorio.Entities
 {
     public class Orden
     {
+        private string _estado;
         public Orden() 
         {
             this.FechaCreacion = DateTimeOffset.Now;
@@ -19,7 +21,17 @@ namespace Laboratorio.Entities
         //[Required] //Es raro este, porque lo agregamos?
         //public DateTimeOffset FechaOrden { get; set; }
         [Required]
-        public string Estado { get; set; }
+        public string Estado {
+            get => _estado;
+            set
+            {
+                if ((_estado == "Finalizado" || _estado == "Cancelado") && _estado != value)
+                {
+                    throw new Exception("No se puede cambiar el estado una vez que ha sido finalizado o cancelado.");
+                }
+                _estado = value;
+            }
+        }
         [Required]
         public decimal MontoTotal { get; set; }
         [Required]

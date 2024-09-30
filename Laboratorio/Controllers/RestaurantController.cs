@@ -76,21 +76,21 @@ namespace Laboratorio.Controllers
             return Ok(productosPendientes);
         }
 
-        [HttpPut("UpdateProductStatus/{comandaId}")]
-        public async Task<IActionResult> UpdateProductStatus(int comandaId, [FromBody] string estado)
+        [HttpPut("UpdateOrdenStatus/{ordenId}")]
+        public async Task<IActionResult> UpdateProductStatus(int ordenId)
         {
-            if (string.IsNullOrEmpty(estado))
-            {
-                return BadRequest("El estado no puede estar vacío.");
-            }
+            //if (string.IsNullOrEmpty(estado))
+            //{
+            //    return BadRequest("El estado no puede estar vacío.");
+            //}
 
-            var result = await _restaurantService.UpdateProductStatusAsync(comandaId, estado);
+            var result = await _restaurantService.UpdateProductStatusAsync(ordenId);
             if (!result)
             {
                 return StatusCode(500, "No se pudo actualizar el estado del producto.");
             }
 
-            return Ok($"El estado del producto con comanda ID {comandaId} se actualizó a '{estado}'.");
+            return Ok($"El estado de la orden con ID {ordenId} se actualizó a 'En Preparación'.");
         }
         [HttpPost("UpdateMesaStatus/{mesaId}")]
         public async Task<IActionResult> UpdateMesaStatus(int mesaId)

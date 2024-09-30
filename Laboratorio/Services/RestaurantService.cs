@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Threading.Tasks;
 using Laboratorio.Data;
@@ -12,13 +13,17 @@ namespace Laboratorio.Services
     public class RestaurantService : IRestaurantService
     {
         private readonly RestauranteContext _context;
+        private string PENDIENTE = EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Pendiente);
+        private string EN_PREPARACION = EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.EnPreparacion);
+        private string CANCELADO = EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Cancelado);
+        private string FINALIZADO = EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Finalizado);
 
         public RestaurantService(RestauranteContext context)
         {
             _context = context;
         }
 
-        public async Task<bool> CreateOrderAsync(CreateOrderDTO orderRequest)
+        public async Task<int> CreateOrderAsync(CreateOrderDTO orderRequest)
         {
             //{
             //  "createdBy": "Juan Perez",
@@ -83,7 +88,7 @@ namespace Laboratorio.Services
             }
 
             var ordenExistente = _context.Ordenes
-                .FirstOrDefault(o => o.MesaId == orderRequest.Mesa && o.EmpleadoId == empleado.Id && (o.Estado == "Pendiente" || o.Estado == "En Preparación"));
+                .FirstOrDefault(o => o.MesaId == orderRequest.Mesa && o.EmpleadoId == empleado.Id && (o.Estado == PENDIENTE || o.Estado == EN_PREPARACION));
 
             if (ordenExistente != null)
             {
@@ -96,7 +101,7 @@ namespace Laboratorio.Services
             {
                 MesaId = orderRequest.Mesa,
                 EmpleadoId = empleado.Id,
-                Estado = "Pendiente",
+                Estado = PENDIENTE,
                 FechaCreacion = DateTime.Now,
                 OrdenItems = ordenItems,
                 MontoTotal = montoTotal
@@ -110,7 +115,7 @@ namespace Laboratorio.Services
                 OrdenId = orden.Id,
                 MenuItemId = oi.MenuItemId,
                 Cantidad = oi.Cantidad,
-                Estado = "Pendiente",
+                Estado = PENDIENTE,
                 FechaCreacion = DateTime.Now
             }).ToList();
 
@@ -124,7 +129,7 @@ namespace Laboratorio.Services
             var comandasPendientes = await _context.Comandas
                 .Include(c => c.MenuItem)
                 .Include(c => c.Orden)
-                .Where(c => c.Estado == "Pendiente" && c.Orden.EmpleadoId == empleadoId)
+                .Where(c => c.Estado == PENDIENTE && c.Orden.EmpleadoId == empleadoId)
                 .Select(c => new ComandaDTO
                 {
                     Id = c.Id,
@@ -147,7 +152,7 @@ namespace Laboratorio.Services
                 throw new Exception($"La comanda con ID {comandaId} no existe.");
             }
 
-            comanda.Estado = "En Preparación";
+            comanda.Estado = EN_PREPARACION;
             comanda.FechaCreacion = DateTimeOffset.Now;
 
             _context.Comandas.Update(comanda);
@@ -187,6 +192,7 @@ namespace Laboratorio.Services
         public async Task<List<OrdenInfoDTO>> GetOrderDetailsWithDelaysAsync()
         {
             var ordenes = await _context.Ordenes
+                .Where(o => o.Estado != FINALIZADO &&  o.Estado != CANCELADO)
                 .Include(o => o.OrdenItems)
                 .ThenInclude(oi => oi.MenuItem)
                 .Include(o => o.Empleado)
@@ -220,7 +226,7 @@ namespace Laboratorio.Services
                 .ThenInclude(oi => oi.MenuItem)
                 .Include(o => o.Comandas)
                 .SelectMany(o => o.Comandas)
-                .Where(c => c.Estado == "Pendiente")
+                .Where(c => c.Estado == PENDIENTE)
                 .Select(c => new ComandaDTO
                 {
                     Id = c.Id,
@@ -234,16 +240,22 @@ namespace Laboratorio.Services
 
             return comandasPendientes;
         }
-        public async Task<bool> UpdateProductStatusAsync(int comandaId, string estado)
+        public async Task<bool> UpdateProductStatusAsync(int ordenId)
         {
-            var comanda = await _context.Comandas.FirstOrDefaultAsync(c => c.Id == comandaId);
-            if (comanda == null)
+            var orden = await _context.Ordenes.FirstOrDefaultAsync(o => o.Id == ordenId);
+            if (orden == null)
             {
-                throw new Exception($"No se encontró la comanda con ID {comandaId}.");
+                throw new Exception($"No se encontró la orden con ID {ordenId}.");
             }
+            orden.Estado = EN_PREPARACION;
 
-            comanda.Estado = estado;
-            _context.Comandas.Update(comanda);
+            var comandas = await _context.Comandas.Where(c => c.OrdenId == ordenId).ToListAsync();
+            foreach (var c in comandas)
+            {
+                c.Estado = EN_PREPARACION;
+                _context.Comandas.Update(c);
+            }
+            _context.Ordenes.Update(orden);
             var result = await _context.SaveChangesAsync();
 
             return result > 0;
@@ -258,7 +270,7 @@ namespace Laboratorio.Services
 
             var ordenes = await _context.Ordenes
                 .Include(o => o.Comandas)
-                .Where(o => o.MesaId == mesaId && o.Estado == EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.EnPreparacion))
+                .Where(o => o.MesaId == mesaId && o.Estado == EN_PREPARACION)
                 .ToListAsync();
 
             if (!ordenes.Any())
@@ -273,7 +285,7 @@ namespace Laboratorio.Services
                 var todasListas = orden.Comandas.All(c => c.Estado == "Listo para Servir");
                 if (todasListas)
                 {
-                    orden.Estado = EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Finalizado);
+                    orden.Estado = FINALIZADO;
                     orden.FechaFinalizacion = DateTimeOffset.Now;
                     actualizacionRealizada = true;
                 }
@@ -321,20 +333,19 @@ namespace Laboratorio.Services
 
             var ordenes = ordenesPorMesa[mesaId];
 
-            if (ordenes.All(o => o.Estado == EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Finalizado) ||
-                                 o.Estado == EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Cancelado)))
+            if (ordenes.All(o => o.Estado == FINALIZADO || o.Estado == CANCELADO))
             {
                 return "Disponible";
             }
 
-            if (ordenes.Any(o => o.Estado == EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.EnPreparacion)))
+            if (ordenes.Any(o => o.Estado == EN_PREPARACION))
             {
-                return "En Preparación";
+                return EN_PREPARACION;
             }
 
-            if (ordenes.Any(o => o.Estado == EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Pendiente)))
+            if (ordenes.Any(o => o.Estado == PENDIENTE))
             {
-                return "Pendiente";
+                return PENDIENTE;
             }
 
             return "Ocupada";
@@ -350,17 +361,17 @@ namespace Laboratorio.Services
                 throw new Exception($"La orden con ID {ordenId} no existe.");
             }
 
-            if (orden.Estado == EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Finalizado))
+            if (orden.Estado == FINALIZADO)
             {
                 throw new Exception($"La orden con ID {ordenId} ya ha sido finalizada.");
             }
 
-            orden.Estado = EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Finalizado);
+            orden.Estado = FINALIZADO;
             orden.FechaFinalizacion = DateTimeOffset.Now;
 
             foreach (var comanda in orden.Comandas)
             {
-                comanda.Estado = EstadoHelper.GetEstadoAsString(EstadoHelper.EEstado.Finalizado);
+                comanda.Estado = FINALIZADO;
             }
 
             var pago = new Pago
