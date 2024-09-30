@@ -27,9 +27,9 @@ namespace Laboratorio.Controllers
         public async Task<IActionResult> CreateOrder(CreateOrderDTO orderRequest)
         {
             var result = await _restaurantService.CreateOrderAsync(orderRequest);
-            if (result)
+            if (result != null)
             {
-                return Ok("Orden creada exitosamente.");
+                return Ok($"Orden {result} creada exitosamente.");
             }
             return BadRequest("No se pudo crear la orden.");
         }

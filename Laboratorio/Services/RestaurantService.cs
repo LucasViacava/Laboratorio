@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -117,7 +117,7 @@ namespace Laboratorio.Services
             await _context.Comandas.AddRangeAsync(comandas);
             await _context.SaveChangesAsync();
 
-            return result > 0;
+            return orden.Id;
         }
         public async Task<List<ComandaDTO>> GetPendingOrdersForEmployeeAsync(int empleadoId)
         {
@@ -128,6 +128,7 @@ namespace Laboratorio.Services
                 .Select(c => new ComandaDTO
                 {
                     Id = c.Id,
+                    OrdenId = c.Orden.Id,
                     MenuItemId = c.MenuItemId,
                     MenuItemNombre = c.MenuItem.Nombre,
                     Cantidad = c.Cantidad,
