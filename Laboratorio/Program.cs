@@ -70,16 +70,16 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddScoped<EmpleadoService>();
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<ComandaService>();
-builder.Services.AddScoped<MenuItemService>();
-builder.Services.AddScoped<MesaService>();
-builder.Services.AddScoped<OrdenItemService>();
-builder.Services.AddScoped<OrdenService>();
-builder.Services.AddScoped<PagoService>();
-builder.Services.AddScoped<ReservaService>();
-builder.Services.AddScoped<RolService>();
+//builder.Services.AddScoped<EmpleadoService>();
+//builder.Services.AddScoped<AuthService>();
+//builder.Services.AddScoped<ComandaService>();
+//builder.Services.AddScoped<MenuItemService>();
+//builder.Services.AddScoped<MesaService>();
+//builder.Services.AddScoped<OrdenItemService>();
+//builder.Services.AddScoped<OrdenService>();
+//builder.Services.AddScoped<PagoService>();
+//builder.Services.AddScoped<ReservaService>();
+//builder.Services.AddScoped<RolService>();
 builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 
 var app = builder.Build();
