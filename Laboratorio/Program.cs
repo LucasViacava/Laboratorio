@@ -71,7 +71,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 //builder.Services.AddScoped<EmpleadoService>();
-//builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AuthService>();
 //builder.Services.AddScoped<ComandaService>();
 //builder.Services.AddScoped<MenuItemService>();
 //builder.Services.AddScoped<MesaService>();
