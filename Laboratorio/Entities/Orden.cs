@@ -18,8 +18,6 @@ namespace Laboratorio.Entities
         [Required]
         public int EmpleadoId { get; set; }
         public int? MesaId { get; set; }
-        //[Required] //Es raro este, porque lo agregamos?
-        //public DateTimeOffset FechaOrden { get; set; }
         [Required]
         public string Estado {
             get => _estado;

@@ -20,126 +20,139 @@ namespace Laboratorio.Controllers
 
         public RestaurantController(IRestaurantService restaurantService)
         {
-            _restaurantService = restaurantService;
+            _restaurantService = restaurantService ?? throw new ArgumentNullException(nameof(restaurantService));
         }
 
         [HttpPost("CreateOrder")]
         public async Task<IActionResult> CreateOrder(CreateOrderDTO orderRequest)
         {
+            if (orderRequest == null)
+                return new JsonResult(new { error = "La solicitud de orden no puede ser nula." });
+
             var result = await _restaurantService.CreateOrderAsync(orderRequest);
             if (result != null)
             {
-                return Ok($"Orden {result} creada exitosamente.");
+                return new JsonResult (new { message = $"Orden {result} creada exitosamente.", orderId = result });
             }
-            return BadRequest("No se pudo crear la orden.");
+            return new JsonResult(new { error = "No se pudo crear la orden." });
         }
 
         [HttpGet("GetPendingOrders/{empleadoId}")]
-        public async Task<IActionResult> GetPendingOrders(int empleadoId)
+        public async Task<IActionResult> GetPendingOrders(int? empleadoId)
         {
-            var comandasPendientes = await _restaurantService.GetPendingOrdersForEmployeeAsync(empleadoId);
-            return Ok(comandasPendientes);
+            if (empleadoId == null)
+                return new JsonResult(new { error = "El ID del empleado no puede ser nulo." });
+
+            var comandasPendientes = await _restaurantService.GetPendingOrdersForEmployeeAsync(empleadoId.Value);
+            return comandasPendientes != null ? new JsonResult(comandasPendientes) : NotFound();
         }
 
         [HttpPut("SetOrderInPreparation/{comandaId}")]
-        public async Task<IActionResult> SetOrderInPreparation(int comandaId)
+        public async Task<IActionResult> SetOrderInPreparation(int? comandaId)
         {
-            var result = await _restaurantService.UpdateOrderStatusToInPreparationAsync(comandaId);
-            if (result)
-            {
-                return Ok("El pedido ahora está en preparación.");
-            }
-            return BadRequest("No se pudo actualizar el estado del pedido.");
+            if (comandaId == null)
+                return new JsonResult(new { error = "El ID de la comanda no puede ser nulo." });
+
+            var result = await _restaurantService.UpdateOrderStatusToInPreparationAsync(comandaId.Value);
+            return result ? new JsonResult("El pedido ahora está en preparación.") : new JsonResult("No se pudo actualizar el estado del pedido.");
         }
 
         [HttpGet("GetPreparationTime/{mesaId}/{ordenId}")]
         public async Task<IActionResult> GetPreparationTime(int mesaId, int ordenId)
         {
             var tiempoTotal = await _restaurantService.GetOrderPreparationTimeAsync(mesaId, ordenId);
-            return Ok(tiempoTotal);
+            return tiempoTotal != null ? new JsonResult(tiempoTotal) : new JsonResult(new
+            {
+                error = "Tiempo de preparación no encontrado."
+            });
         }
+
         [HttpGet("GetOrdersWithDelays")]
         public async Task<IActionResult> GetOrdersWithDelays()
         {
             var result = await _restaurantService.GetOrderDetailsWithDelaysAsync();
-            return Ok(result);
+            return result != null ? new JsonResult(result) : new JsonResult(new
+            {
+                error = "No se encontraron órdenes con retrasos."
+            });
         }
+
         [HttpGet("GetPendingProductsForEmployee/{empleadoId}")]
-        public async Task<IActionResult> GetPendingProductsForEmployee(int empleadoId)
+        public async Task<IActionResult> GetPendingProductsForEmployee(int? empleadoId)
         {
-            var productosPendientes = await _restaurantService.GetPendingProductsForEmployeeAsync(empleadoId);
+            if (empleadoId == null)
+                return new JsonResult(new { error = "El ID del empleado no puede ser nulo." });
+
+            var productosPendientes = await _restaurantService.GetPendingProductsForEmployeeAsync(empleadoId.Value);
             if (productosPendientes == null || !productosPendientes.Any())
             {
-                return NotFound($"No se encontraron productos pendientes para el empleado con ID {empleadoId}.");
+                return new JsonResult(new
+                {
+                    error = $"No se encontraron productos pendientes para el empleado con ID {empleadoId}."
+                });
             }
 
-            return Ok(productosPendientes);
+            return new JsonResult(productosPendientes);
         }
 
         [HttpPut("UpdateOrdenStatus/{ordenId}")]
-        public async Task<IActionResult> UpdateProductStatus(int ordenId)
+        public async Task<IActionResult> UpdateProductStatus(int? ordenId)
         {
-            //if (string.IsNullOrEmpty(estado))
-            //{
-            //    return BadRequest("El estado no puede estar vacío.");
-            //}
+            if (ordenId == null)
+                return new JsonResult(new { error = "El ID de la orden no puede ser nulo." });
 
-            var result = await _restaurantService.UpdateProductStatusAsync(ordenId);
-            if (!result)
-            {
-                return StatusCode(500, "No se pudo actualizar el estado del producto.");
-            }
-
-            return Ok($"El estado de la orden con ID {ordenId} se actualizó a 'En Preparación'.");
+            var result = await _restaurantService.UpdateProductStatusAsync(ordenId.Value);
+            return result ? new JsonResult($"El estado de la orden con ID {ordenId} se actualizó a 'En Preparación'.") : new JsonResult(500, "No se pudo actualizar el estado del producto.");
         }
+
         [HttpPost("UpdateMesaStatus/{mesaId}")]
-        public async Task<IActionResult> UpdateMesaStatus(int mesaId)
+        public async Task<IActionResult> UpdateMesaStatus(int? mesaId)
         {
+            if (mesaId == null)
+                return new JsonResult(new { error = "El ID de la mesa no puede ser nulo." });
+
             try
             {
-                var result = await _restaurantService.UpdateMesaStatusForReadyOrdersAsync(mesaId);
-                if (!result)
-                {
-                    return BadRequest("No se pudieron actualizar los estados de las órdenes.");
-                }
-                return Ok("El estado de las órdenes se ha actualizado a 'Finalizado' correctamente.");
+                var result = await _restaurantService.UpdateMesaStatusForReadyOrdersAsync(mesaId.Value);
+                return result ? new JsonResult("El estado de las órdenes se ha actualizado a 'Finalizado' correctamente.") : new JsonResult("No se pudieron actualizar los estados de las órdenes.");
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return new JsonResult(new { error = ex.Message });
             }
         }
+
         [HttpGet("GetMesasWithStatus")]
         public async Task<IActionResult> GetMesasWithStatus()
         {
             try
             {
                 var mesasConEstado = await _restaurantService.GetMesasWithStatusAsync();
-                return Ok(mesasConEstado);
+                return mesasConEstado != null ? new JsonResult(mesasConEstado) : new JsonResult(new
+                {
+                    error = "No se encontraron mesas con estados."
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return new JsonResult(new { error = ex.Message });
             }
         }
+
         [HttpPost("CobrarCuenta")]
-        public async Task<IActionResult> CobrarCuenta([FromQuery] int ordenId, [FromQuery] string metodoPago)
+        public async Task<IActionResult> CobrarCuenta([FromQuery] int? ordenId, [FromQuery] string metodoPago)
         {
+            if (ordenId == null || string.IsNullOrEmpty(metodoPago))
+                return new JsonResult(new { error = "El ID de la orden y el método de pago no pueden ser nulos o vacíos." });
+
             try
             {
-                var result = await _restaurantService.CobrarCuentaAsync(ordenId, metodoPago);
-                if (result)
-                {
-                    return Ok("La cuenta ha sido cobrada exitosamente y la orden se ha finalizado.");
-                }
-                else
-                {
-                    return BadRequest("No se pudo procesar el cobro.");
-                }
+                var result = await _restaurantService.CobrarCuentaAsync(ordenId.Value, metodoPago);
+                return result ? new JsonResult("La cuenta ha sido cobrada exitosamente y la orden se ha finalizado.") : new JsonResult ("No se pudo procesar el cobro.");
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return new JsonResult(new { error = ex.Message });
             }
         }
     }
