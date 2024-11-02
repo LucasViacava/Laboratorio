@@ -1,4 +1,5 @@
 using Laboratorio.Data;
+using Laboratorio.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -26,18 +27,19 @@ namespace Laboratorio.Services
 
             if (empleado != null)
             {
-                return GenerateJwtToken(empleado.UserName);
+                return GenerateJwtToken(empleado);
             }
 
             return string.Empty;
         }
-        private string GenerateJwtToken(string username)
+        private string GenerateJwtToken(Empleado empleado)
         {
             var claims = new[]
             {
-            new Claim(JwtRegisteredClaimNames.Sub, username),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
+                new Claim(JwtRegisteredClaimNames.Sub, empleado.UserName),
+                new Claim("EmpleadoId", empleado.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

@@ -23,42 +23,18 @@ namespace Laboratorio.Services
             _context = context;
         }
 
-        public async Task<int> CreateOrderAsync(CreateOrderDTO orderRequest)
+        public async Task<int> CreateOrderAsync(CreateOrderDTO orderRequest, int empleadoId)
         {
-            //{
-            //  "createdBy": "Juan Perez",
-            //  "menuItems": [
-            //    {
-            //                    "plato": "Milanesa a Caballo",
-            //      "cantidad": 1
-            //    },
-            //    {
-            //                    "plato": "Hamburguesa de Garbanzo",
-            //      "cantidad": 2
-            //    },
-            //    {
-            //                    "plato": "Corona",
-            //      "cantidad": 1
-            //    },
-            //    {
-            //                    "plato": "Daikiri",
-            //      "cantidad": 1
-            //    }
-            //  ],
-            //  "mesa": 1
-            //}
             var mesa = _context.Mesas.FirstOrDefault(m => m.Id == orderRequest.Mesa);
             if (mesa == null)
             {
                 throw new Exception($"La mesa con ID {orderRequest.Mesa} no existe.");
             }
 
-            var empleado = await _context.Empleados
-                .Where(e => e.Nombre.ToLower() == orderRequest.CreatedBy.ToLower())
-                .FirstOrDefaultAsync();
+            var empleado = await _context.Empleados.FindAsync(empleadoId);
             if (empleado == null)
             {
-                throw new Exception($"El empleado '{orderRequest.CreatedBy}' no existe.");
+                throw new Exception($"El empleado con ID '{empleadoId}' no existe.");
             }
 
             var menuItemsValidos = await _context.MenuItems.ToListAsync();
@@ -88,11 +64,11 @@ namespace Laboratorio.Services
             }
 
             var ordenExistente = _context.Ordenes
-                .FirstOrDefault(o => o.MesaId == orderRequest.Mesa && o.EmpleadoId == empleado.Id && (o.Estado == PENDIENTE || o.Estado == EN_PREPARACION));
+                .FirstOrDefault(o => o.MesaId == orderRequest.Mesa && o.EmpleadoId == empleadoId && (o.Estado == PENDIENTE || o.Estado == EN_PREPARACION));
 
             if (ordenExistente != null)
             {
-                throw new Exception($"Ya existe una orden pendiente para la mesa {orderRequest.Mesa} creada por {orderRequest.CreatedBy}.");
+                throw new Exception($"Ya existe una orden pendiente para la mesa {orderRequest.Mesa} creada por el empleado con ID {empleadoId}.");
             }
 
             decimal montoTotal = ordenItems.Sum(oi => oi.Precio * oi.Cantidad);
@@ -100,7 +76,7 @@ namespace Laboratorio.Services
             var orden = new Orden
             {
                 MesaId = orderRequest.Mesa,
-                EmpleadoId = empleado.Id,
+                EmpleadoId = empleadoId,
                 Estado = PENDIENTE,
                 FechaCreacion = DateTime.Now,
                 OrdenItems = ordenItems,
@@ -124,6 +100,27 @@ namespace Laboratorio.Services
 
             return orden.Id;
         }
+
+        public async Task<bool> UpdateOrderStatusToInPreparationAsync(int ordenId)
+        {
+            var comandas = await _context.Comandas.Include(c => c.MenuItem).Where(c => c.OrdenId == ordenId).ToListAsync();
+            if (comandas == null)
+            {
+                throw new Exception($"La orden con ID {ordenId} no existe.");
+            }
+
+            foreach (var c in comandas) {
+                c.Estado = EN_PREPARACION;
+                _context.Comandas.Update(c);
+            }
+            var orden = await _context.Ordenes.FirstOrDefaultAsync(o => o.Id == ordenId);
+            orden.Estado = EN_PREPARACION;
+            _context.Ordenes.Update(orden);
+
+            var result = await _context.SaveChangesAsync();
+            return result > 0;
+        }
+
         public async Task<List<ComandaDTO>> GetPendingOrdersForEmployeeAsync(int empleadoId)
         {
             var comandasPendientes = await _context.Comandas
@@ -144,31 +141,16 @@ namespace Laboratorio.Services
 
             return comandasPendientes;
         }
-        public async Task<bool> UpdateOrderStatusToInPreparationAsync(int comandaId)
-        {
-            var comanda = await _context.Comandas.Include(c => c.MenuItem).FirstOrDefaultAsync(c => c.Id == comandaId);
-            if (comanda == null)
-            {
-                throw new Exception($"La comanda con ID {comandaId} no existe.");
-            }
 
-            comanda.Estado = EN_PREPARACION;
-            comanda.FechaCreacion = DateTimeOffset.Now;
-
-            _context.Comandas.Update(comanda);
-            var result = await _context.SaveChangesAsync();
-            return result > 0;
-        }
-
-        public async Task<string> GetOrderPreparationTimeAsync(int mesaId, int ordenId)
+        public async Task<string> GetOrderPreparationTimeAsync(int ordenId)
         {
             var orden = await _context.Ordenes
                 .Include(o => o.OrdenItems).ThenInclude(oi => oi.MenuItem)
-                .FirstOrDefaultAsync(o => o.Id == ordenId && o.MesaId == mesaId);
+                .FirstOrDefaultAsync(o => o.Id == ordenId);
 
             if (orden == null)
             {
-                throw new Exception($"No se encontró la orden con ID {ordenId} para la mesa {mesaId}.");
+                throw new Exception($"No se encontró la orden con ID {ordenId}.");
             }
 
             var tiempoTotalPreparacion = orden.OrdenItems.Max(oi => oi.MenuItem.TiempoPreparacion);
@@ -240,25 +222,31 @@ namespace Laboratorio.Services
 
             return comandasPendientes;
         }
-        public async Task<bool> UpdateProductStatusAsync(int ordenId)
+        public async Task<string> UpdateProductStatusAsync(int ordenId)
         {
             var orden = await _context.Ordenes.FirstOrDefaultAsync(o => o.Id == ordenId);
             if (orden == null)
             {
                 throw new Exception($"No se encontró la orden con ID {ordenId}.");
             }
-            orden.Estado = EN_PREPARACION;
+            var estadoActual = EstadoHelper.GetEstadoFromString(orden.Estado);
+            var nextEstado = EstadoHelper.GetNextEstado(estadoActual.Value);
+            if (nextEstado == null)
+            {
+                throw new Exception($"No es posible avanzar desde el estado '{orden.Estado}' a otro estado.");
+            }
+            orden.Estado = EstadoHelper.GetEstadoAsString(nextEstado.Value);
 
             var comandas = await _context.Comandas.Where(c => c.OrdenId == ordenId).ToListAsync();
             foreach (var c in comandas)
             {
-                c.Estado = EN_PREPARACION;
+                c.Estado = EstadoHelper.GetEstadoAsString(nextEstado.Value);
                 _context.Comandas.Update(c);
             }
             _context.Ordenes.Update(orden);
             var result = await _context.SaveChangesAsync();
 
-            return result > 0;
+            return EstadoHelper.GetEstadoAsString(nextEstado.Value);
         }
         public async Task<bool> UpdateMesaStatusForReadyOrdersAsync(int mesaId)
         {

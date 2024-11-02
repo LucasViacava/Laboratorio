@@ -2,7 +2,6 @@
 {
     public class CreateOrderDTO
     {
-        public string CreatedBy { get; set; }
         public List<MenuItemRequestDTO> MenuItems { get; set; }
         public int Mesa { get; set; }
     }
